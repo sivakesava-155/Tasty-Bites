@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import './Veg.css'; // Reusing existing styles
+import './Veg.css';
 import { useCart } from './CartContext';
-import { RingLoader } from 'react-spinners'; // Using RingLoader for consistency
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for footer links
-import Navbar from './Navbar'; // Import Navbar
+import { RingLoader } from 'react-spinners';
+import Navbar from './Navbar';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify'; // Import toast
+import { buildAssetUrl } from './services/apiClient';
+import { getProductsByCategory } from './services/productService';
 
-function NonVeg() {
-  const navigate = useNavigate(); // Initialize useNavigate
+function Veg() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedRanges, setSelectedRanges] = useState(['all']);
@@ -20,7 +22,7 @@ function NonVeg() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const MIN_LOAD_TIME = 1000; // Adjusted to 1 second for quicker demo/test
+    const MIN_LOAD_TIME = 1000;
     let startTime;
 
     const fetchData = async () => {
@@ -28,20 +30,13 @@ function NonVeg() {
       startTime = Date.now();
 
       try {
-        const token = localStorage.getItem('token');
-
-        const response = await axios.get('https://spring-apigateway.onrender.com/api/products/nonveg', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
+        const response = await getProductsByCategory('veg');
         setProducts(response.data);
         setFilteredProducts(response.data);
         setError(null);
       } catch (err) {
-        console.error("Failed to load non-veg items:", err);
-        setError('Failed to load non-veg items');
+        console.error(err);
+        setError('Failed to load veg items');
         setProducts([]);
         setFilteredProducts([]);
       } finally {
@@ -100,6 +95,11 @@ function NonVeg() {
     setSelectedRanges(['all']);
   };
 
+  const handleAddToCartClick = (product) => {
+    addToCart(product);
+    toast.success(`${product.name} added to cart!`); // Show success toast
+  };
+
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentItems = filteredProducts.slice(indexOfFirst, indexOfLast);
@@ -107,11 +107,9 @@ function NonVeg() {
 
   return (
     <>
-      {/* Navbar will be rendered by the NavbarWrapper in App.js */}
-      {/* <Navbar /> -- Remove this line if NavbarWrapper is correctly implemented in App.js */}
-
-      <div className="veg-section"> {/* Reusing veg-section class for layout */}
-        <h3 className="section-title">🍗 NonVeg Menu</h3>
+      <Navbar />
+      <div className="veg-section">
+        <h3 className="section-title">🌿 Veg Menu</h3>
 
         <div className="refresh-button-container">
           <button className="refresh-button" onClick={handleRefresh} disabled={loading}>
@@ -152,27 +150,27 @@ function NonVeg() {
 
         {loading ? (
           <div className="spinner-container">
-            <RingLoader color="#d9534f" loading={loading} size={70} />
-            <p className="status-message">Loading delicious non-veg items...</p>
+            <RingLoader color="#ffb300" loading={loading} size={70} />
+            <p className="status-message">Loading delicious veg items...</p>
           </div>
         ) : error ? (
           <p className="status-message error">{error}</p>
         ) : currentItems.length === 0 ? (
-          <p className="status-message">No non-veg items available.</p>
+          <p className="status-message">No veg items available.</p>
         ) : (
           <>
             <div className="card-grid">
               {currentItems.map(product => (
                 <div className="card" key={product.id}>
                   <img
-                    src={`https://spring-apigateway.onrender.com${product.imageUrl}`}
+                    src={buildAssetUrl(product.imageUrl)}
                     alt={product.name}
                     className="card-img"
                     onError={(e) => { e.target.src = '/fallback.jpg'; }}
                   />
                   <h4>{product.name}</h4>
                   <p>₹{product.price}</p>
-                  <button onClick={() => addToCart(product)}>Add to Cart</button>
+                  <button onClick={() => handleAddToCartClick(product)}>Add to Cart</button> {/* Use the new handler */}
                 </div>
               ))}
             </div>
@@ -227,4 +225,4 @@ function NonVeg() {
   );
 }
 
-export default NonVeg;
+export default Veg;

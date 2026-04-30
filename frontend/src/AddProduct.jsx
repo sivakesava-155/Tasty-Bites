@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './AddProduct.css';
 import { FaArrowLeft, FaEye } from 'react-icons/fa';
+import { createProduct } from './services/productService';
 
 function AddProduct() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
   const [product, setProduct] = useState({
     name: '',
     category: '',
@@ -26,12 +24,7 @@ function AddProduct() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("https://spring-apigateway.onrender.com/api/products", product, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+      await createProduct(product);
       alert("Product added successfully!");
       navigate("/admin/view-products");
     } catch (error) {

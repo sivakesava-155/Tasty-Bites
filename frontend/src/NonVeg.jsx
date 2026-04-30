@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import './Veg.css'; // Reusing existing styles
 import { useCart } from './CartContext';
-import { BeatLoader } from 'react-spinners'; // Using BeatLoader
+import { RingLoader } from 'react-spinners'; // Using RingLoader for consistency
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for footer links
 import Navbar from './Navbar'; // Import Navbar
+import { buildAssetUrl } from './services/apiClient';
+import { getProductsByCategory } from './services/productService';
 
-function Drinks() {
+function NonVeg() {
   const navigate = useNavigate(); // Initialize useNavigate
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -28,20 +29,14 @@ function Drinks() {
       startTime = Date.now();
 
       try {
-        const token = localStorage.getItem('token');
-
-        const response = await axios.get('https://spring-apigateway.onrender.com/api/products/drinks', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await getProductsByCategory('nonveg');
 
         setProducts(response.data);
         setFilteredProducts(response.data);
         setError(null);
       } catch (err) {
-        console.error("Failed to load drinks items:", err);
-        setError('Failed to load drinks items');
+        console.error("Failed to load non-veg items:", err);
+        setError('Failed to load non-veg items');
         setProducts([]);
         setFilteredProducts([]);
       } finally {
@@ -110,8 +105,8 @@ function Drinks() {
       {/* Navbar will be rendered by the NavbarWrapper in App.js */}
       {/* <Navbar /> -- Remove this line if NavbarWrapper is correctly implemented in App.js */}
 
-      <div className="veg-section">
-        <h3 className="section-title">🥤 Drinks</h3>
+      <div className="veg-section"> {/* Reusing veg-section class for layout */}
+        <h3 className="section-title">🍗 NonVeg Menu</h3>
 
         <div className="refresh-button-container">
           <button className="refresh-button" onClick={handleRefresh} disabled={loading}>
@@ -152,20 +147,20 @@ function Drinks() {
 
         {loading ? (
           <div className="spinner-container">
-            <BeatLoader color="#00BFFF" loading={loading} size={15} margin={5} />
-            <p className="status-message">Pouring up some refreshing drinks...</p>
+            <RingLoader color="#d9534f" loading={loading} size={70} />
+            <p className="status-message">Loading delicious non-veg items...</p>
           </div>
         ) : error ? (
           <p className="status-message error">{error}</p>
         ) : currentItems.length === 0 ? (
-          <p className="status-message">No drinks available.</p>
+          <p className="status-message">No non-veg items available.</p>
         ) : (
           <>
             <div className="card-grid">
               {currentItems.map(product => (
                 <div className="card" key={product.id}>
                   <img
-                    src={`https://spring-apigateway.onrender.com${product.imageUrl}`}
+                    src={buildAssetUrl(product.imageUrl)}
                     alt={product.name}
                     className="card-img"
                     onError={(e) => { e.target.src = '/fallback.jpg'; }}
@@ -227,4 +222,4 @@ function Drinks() {
   );
 }
 
-export default Drinks;
+export default NonVeg;

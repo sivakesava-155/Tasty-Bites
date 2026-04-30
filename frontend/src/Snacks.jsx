@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import './Veg.css'; // Reusing styles
 import { useCart } from './CartContext';
 import { ClipLoader } from 'react-spinners'; // Using ClipLoader for Snacks!
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for footer links
 import Navbar from './Navbar'; // Don't forget to import Navbar if you want it here
+import { buildAssetUrl } from './services/apiClient';
+import { getProductsByCategory } from './services/productService';
 
 function Snacks() {
   const navigate = useNavigate(); // Initialize useNavigate
@@ -28,13 +29,7 @@ function Snacks() {
       startTime = Date.now();
 
       try {
-        const token = localStorage.getItem('token');
-
-        const response = await axios.get('https://spring-apigateway.onrender.com/api/products/snacks', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await getProductsByCategory('snacks');
 
         setProducts(response.data);
         setFilteredProducts(response.data);
@@ -165,7 +160,7 @@ function Snacks() {
               {currentItems.map(product => (
                 <div className="card" key={product.id}>
                   <img
-                    src={`https://spring-apigateway.onrender.com${product.imageUrl}`}
+                    src={buildAssetUrl(product.imageUrl)}
                     alt={product.name}
                     className="card-img"
                     onError={(e) => { e.target.src = '/fallback.jpg'; }}

@@ -7,6 +7,8 @@ import { FaLock, FaQrcode, FaCreditCard, FaChevronDown, FaChevronUp, FaArrowLeft
 import emailjs from '@emailjs/browser';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { buildAssetUrl } from './services/apiClient';
+import { checkoutOrder } from './services/orderService';
 
 const debounce = (func, delay) => {
   let timeout;
@@ -171,27 +173,15 @@ const CartPage = () => {
     setIsCheckingOut(true);
 
     try {
-      const response = await fetch('https://spring-apigateway.onrender.com/api/orders/place', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          cartItems: cartItems.map((item) => ({
-            productName: item.name,
-            price: item.price,
-            quantity: item.quantity,
-          })),
-          totalAmount: estimatedTotalNum, // Send the numerical value
-          status: "PENDING", // Add an initial status for the backend
-        }),
+      await checkoutOrder({
+        cartItems: cartItems.map((item) => ({
+          productName: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        totalAmount: estimatedTotalNum,
+        status: "PENDING",
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Checkout failed');
-      }
 
       const orderId = 'TB' + Date.now();
 
@@ -347,7 +337,7 @@ const CartPage = () => {
                   <tr key={item.id} id={`cart-item-${item.id}`} className={quantityAnimatingItemId === item.id ? 'quantity-pulsing' : ''}>
                     <td className="item-details-cell">
                       <img
-                        src={`https://spring-apigateway.onrender.com${item.imageUrl}`}
+                        src={buildAssetUrl(item.imageUrl)}
                         alt={item.name}
                         className="item-image-template"
                         onError={(e) => { e.target.src = '/fallback.jpg'; }}

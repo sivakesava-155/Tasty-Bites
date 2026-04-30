@@ -9,7 +9,10 @@ const PrivateRoute = ({ role }) => { // No need for 'children' prop here anymore
 
   try {
     const decoded = jwtDecode(token);
-    if (decoded.role === role) {
+    const tokenRole = (decoded.role || "").toString().toUpperCase();
+    const requiredRole = (role || "").toString().toUpperCase();
+
+    if (tokenRole === requiredRole) {
       return <Outlet />; // Render the nested routes
     } else {
       // If role doesn't match, redirect to login (or an unauthorized page)

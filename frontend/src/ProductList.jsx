@@ -1,17 +1,12 @@
 // src/components/ProductList.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getProductsByCategory } from './services/productService';
+import { buildAssetUrl } from './services/apiClient';
 
 function ProductList({ category }) {
   const [products, setProducts] = useState([]);
-  const token = localStorage.getItem('token');
-
   useEffect(() => {
-    axios.get(`https://spring-apigateway.onrender.com/api/products/category/${category}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
+    getProductsByCategory(category)
     .then(res => setProducts(res.data))
     .catch(err => console.error("Error fetching products:", err));
   }, [category]);
@@ -24,7 +19,7 @@ function ProductList({ category }) {
           <li key={prod.id}>
             <strong>{prod.name}</strong> - ₹{prod.price}
             <br />
-            <img src={prod.image} alt={prod.name} width="100" />
+            <img src={buildAssetUrl(prod.imageUrl || prod.image)} alt={prod.name} width="100" />
           </li>
         ))}
       </ul>

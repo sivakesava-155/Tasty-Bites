@@ -1,8 +1,8 @@
 // src/components/UserManagement.js
 import React, { useEffect, useState, useCallback } from "react";
-import axios from "axios";
 import { toast } from "react-toastify"; // Import toast
 import '.././AdminDashboard.css'; // Reusing dashboard CSS for general styling
+import { deleteUser, getAllUsers } from "./services/userService";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -10,17 +10,13 @@ const UserManagement = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const token = localStorage.getItem("token");
-
   // Fetch users from the backend
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get("https://spring-apigateway.onrender.com/api/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUsers(response.data);
+      const response = await getAllUsers();
+      setUsers(response.data?.data || response.data || []);
     } catch (err) {
       console.error("Error fetching users:", err);
       setError("Failed to load users. Please try again.");
@@ -28,7 +24,7 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
@@ -41,9 +37,7 @@ const UserManagement = () => {
     }
     try {
       // Assuming a DELETE endpoint for users exists
-      await axios.delete(`https://spring-apigateway.onrender.com/api/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await deleteUser(userId);
       toast.success("User deleted successfully!"); // Success toast
       fetchUsers(); // Refresh the list
     } catch (err) {

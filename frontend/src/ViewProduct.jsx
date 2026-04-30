@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './ViewProduct.css';
+import { buildAssetUrl } from './services/apiClient';
+import { deleteProduct, getAllProducts } from './services/productService';
 
 function ViewProduct() {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
 
   useEffect(() => {
     fetchProducts();
@@ -14,10 +14,8 @@ function ViewProduct() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("https://spring-apigateway.onrender.com/api/products", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProducts(res.data);
+      const res = await getAllProducts();
+      setProducts(res.data?.products || res.data || []);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
@@ -25,9 +23,7 @@ function ViewProduct() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://spring-apigateway.onrender.com/api/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await deleteProduct(id);
       alert("✅ Product deleted!");
       fetchProducts();
     } catch (error) {
@@ -50,7 +46,7 @@ function ViewProduct() {
           {products.map(product => (
             <div className="product-card" key={product.id}>
               <img
-                src={`https://spring-apigateway.onrender.com${product.imageUrl}`}
+                src={buildAssetUrl(product.imageUrl)}
                 alt={product.name}
                 onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
               />

@@ -3,10 +3,10 @@ import './OrdersPage.css';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import axios from 'axios';
 import { FaChevronDown, FaChevronUp, FaFileInvoice, FaHome, FaClipboardList, FaSyncAlt } from 'react-icons/fa'; // Import FaSyncAlt
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getMyOrders, updateOrderStatus } from './services/orderService';
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -57,15 +57,8 @@ function OrdersPage() {
     }
 
     try {
-      const res = await fetch("https://spring-apigateway.onrender.com/api/orders/my", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) throw new Error("Backend fetch failed");
-
-      const data = await res.json();
+      const res = await getMyOrders();
+      const data = res.data;
 
       if (!Array.isArray(data)) throw new Error("Invalid orders format");
 
@@ -186,13 +179,7 @@ function OrdersPage() {
     if (!confirmCancel) return;
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`https://spring-apigateway.onrender.com/api/orders/${orderId}/status`,
-        { status: "DECLINED" },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      await updateOrderStatus(orderId, "DECLINED");
       toast.success("Order cancelled successfully!", { position: "top-center" });
       fetchOrders();
     } catch (error) {

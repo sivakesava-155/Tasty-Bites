@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
+import { signIn } from './services/authService';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -16,14 +16,19 @@ function Login() {
     setError('');
 
     try {
-      // This is the correct way to send the email and password,
-      // matching your backend's LoginDetails DTO (which expects an 'email' field).
-      const response = await axios.post('https://spring-apigateway.onrender.com/api/auth/login', {
-        email: email, // This is correctly sending 'email' as the key
+      const response = await signIn({
+        email,
         password
       });
 
-      const { token, role, email: loggedInEmail } = response.data; // Backend's AuthResponse correctly returns 'email'
+      const payload = response.data?.data || response.data || {};
+      const token = response.data?.token || payload?.token;
+      const role = (response.data?.role || payload?.user?.role || "").toUpperCase();
+      const loggedInEmail = response.data?.email || payload?.user?.email || email;
+
+      if (!token) {
+        throw new Error("Login response did not include token");
+      }
 
       // Storing authentication and user details in localStorage
       localStorage.setItem('token', token);
@@ -37,8 +42,6 @@ function Login() {
       // Storing email explicitly under 'email' key for direct access
       localStorage.setItem('email', loggedInEmail); 
 
-      setLoading(false);
-
       // Navigate based on user role
       if (role === 'ADMIN') {
         navigate('/admin/dashboard');
@@ -47,13 +50,9 @@ function Login() {
       }
 
     } catch (err) {
+      setError(err.message || 'Login failed. Please check your network connection or try again later.');
+    } finally {
       setLoading(false);
-      // Detailed error handling based on backend response
-      if (err.response && err.response.status === 401 && err.response.data && err.response.data.message) {
-        setError(err.response.data.message); // Display specific backend message (e.g., "Invalid email or password")
-      } else {
-        setError('Login failed. Please check your network connection or try again later.'); // Generic fallback error
-      }
     }
   };
 

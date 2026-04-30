@@ -25,8 +25,9 @@ function Signup() {
     }
 
     try {
-      const response = await axios.post('https://spring-apigateway.onrender.com/api/auth/signup', {
-        username: user.email, // Backend's AuthController still expects 'username'
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/register", {
+        email: user.email, // Backend's AuthController still expects 'username'
         password: user.password,
         role: user.role // Send the selected role
       });

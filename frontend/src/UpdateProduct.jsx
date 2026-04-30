@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './UpdateProduct.css';
+import { getAllProducts, updateProduct } from './services/productService';
 
 function UpdateProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
-  console.log("Token:", token);
-
   const [product, setProduct] = useState({
     name: '',
     category: '',
@@ -19,10 +16,9 @@ function UpdateProduct() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get("https://spring-apigateway.onrender.com/api/products", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const found = res.data.find(p => p.id === parseInt(id));
+        const res = await getAllProducts();
+        const items = res.data?.products || res.data || [];
+        const found = items.find((p) => p.id === id || p._id === id);
         if (found) setProduct(found);
       } catch (error) {
         console.error("Fetch failed:", error);
@@ -30,7 +26,7 @@ function UpdateProduct() {
       }
     };
     fetchProduct();
-  }, [id, token]);
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,12 +36,7 @@ function UpdateProduct() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`https://spring-apigateway.onrender.com/api/products/${id}`, product, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      await updateProduct(id, product);
       alert("✅ Product updated!");
       navigate('/admin/dashboard');
     } catch (error) {

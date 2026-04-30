@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import './AdminDashboard.css';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell
 } from 'recharts';
+import { buildAssetUrl } from "./services/apiClient";
+import { deleteProduct, getAllProducts } from "./services/productService";
+import {
+  getAllOrders,
+  getAnalyticsSummary,
+  getDailyRevenue,
+  getWeeklyRevenue,
+  updateOrderStatus
+} from "./services/orderService";
 
 const AdminDashboard = () => {
   const [products, setProducts] = useState([]);
@@ -15,8 +23,6 @@ const AdminDashboard = () => {
   const [activeView, setActiveView] = useState('dashboard');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
   const COLORS = ['#ff9f43', '#e17055', '#fdcb6e', '#ffeaa7', '#fab1a0', '#feca57', '#ff6b6b', '#f8c291'];
 
   useEffect(() => {
@@ -40,10 +46,8 @@ const AdminDashboard = () => {
   };
 
   const fetchProducts = () => {
-    return axios.get("https://spring-apigateway.onrender.com/api/products", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    .then(res => setProducts(res.data))
+    return getAllProducts()
+    .then(res => setProducts(res.data?.products || res.data || []))
     .catch(err => {
       console.error("Error fetching products", err);
       throw err;
@@ -51,9 +55,7 @@ const AdminDashboard = () => {
   };
 
   const fetchAnalyticsSummary = () => {
-    return axios.get("https://spring-apigateway.onrender.com/api/analytics/summary", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    return getAnalyticsSummary()
     .then(res => setAnalytics(res.data))
     .catch(err => {
       console.error("Error fetching analytics", err);
@@ -62,9 +64,7 @@ const AdminDashboard = () => {
   };
 
   const fetchRevenueCharts = () => {
-    const dailyPromise = axios.get("https://spring-apigateway.onrender.com/api/analytics/daily-revenue", {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => {
+    const dailyPromise = getDailyRevenue().then(res => {
       const formatted = res.data.map(entry => ({
         date: entry.label,
         revenue: entry.totalRevenue
@@ -75,9 +75,7 @@ const AdminDashboard = () => {
       throw err;
     });
 
-    const weeklyPromise = axios.get("https://spring-apigateway.onrender.com/api/analytics/weekly-revenue", {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => {
+    const weeklyPromise = getWeeklyRevenue().then(res => {
       const formatted = res.data.map(entry => ({
         week: entry.label,
         revenue: entry.totalRevenue
@@ -92,9 +90,7 @@ const AdminDashboard = () => {
   };
 
   const fetchAllOrders = () => {
-    return axios.get("https://spring-apigateway.onrender.com/api/orders/all", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    return getAllOrders()
     .then(res => {
       setOrders(res.data.reverse());
     })
@@ -105,9 +101,7 @@ const AdminDashboard = () => {
   };
 
   const handleStatusUpdate = (orderId, status) => {
-    axios.put(`https://spring-apigateway.onrender.com/api/orders/${orderId}/status`, { status }, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    updateOrderStatus(orderId, status)
     .then(() => fetchAllOrders())
     .catch(err => {
       console.error("Failed to update order status", err);
@@ -118,9 +112,7 @@ const AdminDashboard = () => {
   const handleEdit = (id) => navigate(`/admin/update/${id}`);
 
   const handleDelete = (id) => {
-    axios.delete(`https://spring-apigateway.onrender.com/api/products/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    deleteProduct(id)
     .then(() => fetchProducts())
     .catch(err => console.error("Delete failed", err));
   };
@@ -191,7 +183,7 @@ const AdminDashboard = () => {
                     {products.length > 0 ? products.map((product) => (
                       <div className="product-card" key={product.id}>
                         <img
-                          src={`https://spring-apigateway.onrender.com${product.imageUrl}`}
+                          src={buildAssetUrl(product.imageUrl)}
                           alt={product.name}
                           onError={(e) => { e.target.src = "/fallback.jpg"; }}
                         />
@@ -320,7 +312,7 @@ const AdminDashboard = () => {
                   {products.length > 0 ? products.map((product) => (
                     <div className="product-card" key={product.id}>
                       <img
-                        src={`https://spring-apigateway.onrender.com${product.imageUrl}`}
+                        src={buildAssetUrl(product.imageUrl)}
                         alt={product.name}
                         onError={(e) => { e.target.src = "/fallback.jpg"; }}
                       />
