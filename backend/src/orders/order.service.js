@@ -1,5 +1,4 @@
 const Order = require("./order.model");
-
 const STATUS_VALUES = ["PENDING", "ACCEPTED", "DECLINED", "CANCELLED"];
 
 const normalizeItems = (orderData = {}) => {
@@ -41,6 +40,12 @@ const calculateSubtotal = (items = []) =>
   items.reduce((total, item) => total + item.product.price * item.quantity, 0);
 
 const createOrder = async (orderData) => {
+  console.log("[orders.service.createOrder] Start", {
+    userId: orderData?.userId,
+    hasItems: Array.isArray(orderData?.items) || Array.isArray(orderData?.cartItems),
+    paymentMode: orderData?.paymentMode,
+  });
+
   const items = normalizeItems(orderData);
   if (items.length === 0) {
     throw new Error("Order must contain at least one item");

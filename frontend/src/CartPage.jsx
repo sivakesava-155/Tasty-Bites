@@ -170,28 +170,59 @@ const CartPage = () => {
         return;
     }
 
+    const safeParse = (value) => {
+      try {
+        return value ? JSON.parse(value) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const userObject = safeParse(localStorage.getItem("user"));
+    const resolvedUserId =
+      localStorage.getItem("userId") ||
+      localStorage.getItem("id") ||
+      userObject?._id ||
+      userObject?.id ||
+      "";
+
+    console.log("[checkout][debug] id resolution", {
+      localStorageUserId: localStorage.getItem("userId"),
+      localStorageId: localStorage.getItem("id"),
+      userObjectId: userObject?._id,
+      userObjectIdAlt: userObject?.id,
+      resolvedUserId,
+    });
+
+    if (!resolvedUserId) {
+      toast.error("User id missing. Please login again.", { position: "top-center" });
+      navigate("/login");
+      return;
+    }
+
     setIsCheckingOut(true);
 
     try {
-      await checkoutOrder({
-        userId: localStorage.getItem("userId"),
-      
+      const orderPayload = {
+        userId: resolvedUserId,
         items: cartItems.map((item) => ({
           product: {
             productId: item._id || item.id,
-            productName: item.name,
-            category: item.category,
-            price: item.price,
+            productName: item.name || "",
+            productImage: item.productImage || item.imageUrl || item.image || "",
+            category: item.category || "",
+            description: item.description || "",
+            price: Number(item.price || 0),
           },
-          quantity: item.quantity,
+          quantity: Number(item.quantity || 1),
         })),
-      
-        paymentMode: visibleSection === "card" ? "CARD" : "UPI",
-      
-        taxAmount: taxCost,
-        shippingAmount: shippingCost,
-        discountAmount: discountAmount,
-      });
+        paymentMode: visibleSection === "card" ? "Credit Card" : "UPI",
+        taxAmount: Number(taxCost),
+        shippingAmount: Number(shippingCost),
+        discountAmount: Number(discountAmount),
+      };
+
+      await checkoutOrder(orderPayload);
       
       const orderId = 'TB' + Date.now();
 

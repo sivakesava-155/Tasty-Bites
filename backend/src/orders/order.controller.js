@@ -2,76 +2,36 @@ const mongoose = require("mongoose");
 const orderService = require("./order.service");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
-try {
-  const orderResponse = await checkoutOrder({
-    items: cartItems.map((item) => ({
-      productName: item.name,
-      price: item.price,
-      quantity: item.quantity,
-    })),
+const createRequestTag = () => `order-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
-    taxAmount: taxCost,
-    shippingAmount: shippingCost,
-    discountAmount: discountAmount,
-    status: "PENDING",
-  });
+const getErrorDetails = (error) => {
+  if (!error) return {};
 
-  // Use backend generated order number
-  const orderId = orderResponse.orderNumber;
+  if (error.name === "ValidationError" && error.errors) {
+    return Object.fromEntries(
+      Object.entries(error.errors).map(([field, value]) => [
+        field,
+        value.message,
+      ])
+    );
+  }
 
-  const templateParams = {
-    user_email: userEmail,
-    order_id: orderId,
+  return {};
+};
 
-    orders: cartItems.map((item) => ({
-      name: item.name,
-      price: item.price.toFixed(2),
-      units: item.quantity,
-    })),
-
-    cost: {
-      subtotal: totalAmount.toFixed(2),
-      tax: taxCost.toFixed(2),
-      shipping: shippingCost.toFixed(2),
-      discount: discountAmount.toFixed(2),
-      total: estimatedTotal,
-    },
-  };
-
-  await emailjs.send(
-    SERVICE_ID,
-    TEMPLATE_ID,
-    templateParams,
-    PUBLIC_KEY
-  );
-
-  clearCart();
-  localStorage.removeItem("cartItems");
-
-  setIsCheckedOut(true);
-  setCheckoutSuccess(true);
-  setCountdown(5);
-
-  toast.success(
-    "Order placed successfully! Check your email.",
-    {
-      position: "top-center",
-      autoClose: 3000,
-    }
-  );
-
-} catch (err) {
-  console.error("Checkout Error:", err);
-
-  toast.error(
-    "Checkout failed. Please try again.",
-    {
-      position: "top-center",
-    }
-  );
-} finally {
-  setIsCheckingOut(false);
-}
+const createOrder = async (req, res) => {
+  const requestTag = createRequestTag();
+  try {
+    const payload = { ...req.body };
+    const order = await orderService.createOrder(payload);
+    res.status(201).json(order);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to create order",
+      error: error.message,
+    });
+  }
+};
 
 const getAllOrders = async (_req, res) => {
   try {
@@ -188,7 +148,6 @@ module.exports = {
   getAllOrders,
   getOrderById,
   getOrdersByUser,
-  getMyOrders,
   updateOrderStatus,
   deleteOrder,
 };
