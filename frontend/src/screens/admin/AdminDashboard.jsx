@@ -4,16 +4,16 @@ import './AdminDashboard.css';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell
 } from 'recharts';
-import { buildAssetUrl } from "./services/apiClient";
-import { deleteProduct, getAllProducts } from "./services/productService";
+import { buildAssetUrl } from "../../services/apiClient";
+import { deleteProduct, getAllProducts } from "../../services/productService";
 import {
   getAllOrders,
   getAnalyticsSummary,
   getDailyRevenue,
   getWeeklyRevenue,
   updateOrderStatus
-} from "./services/orderService";
-
+} from "../../services/orderService";
+  
 const AdminDashboard = () => {
   const [products, setProducts] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -111,10 +111,21 @@ const AdminDashboard = () => {
 
   const handleEdit = (id) => navigate(`/admin/update/${id}`);
 
-  const handleDelete = (id) => {
-    deleteProduct(id)
-    .then(() => fetchProducts())
-    .catch(err => console.error("Delete failed", err));
+  // const handleDelete = (id) => {
+  //   deleteProduct(id)
+  //   .then(() => fetchProducts())
+  //   .catch(err => console.error("Delete failed", err));
+  // };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteProduct(id);
+      alert("✅ Product deleted!");
+      fetchProducts();
+    } catch (error) {
+      console.error("Delete failed", error);
+      alert("❌ Could not delete product.");
+    }
   };
 
   const handleAddProduct = () => navigate("/admin/add-product");
@@ -182,17 +193,20 @@ const AdminDashboard = () => {
                   <div className="product-grid four-cols">
                     {products.length > 0 ? products.map((product) => (
                       <div className="product-card" key={product.id}>
-                        <img
-                          src={buildAssetUrl(product.imageUrl)}
+                       <img
+                          src={product.image}
                           alt={product.name}
-                          onError={(e) => { e.target.src = "/fallback.jpg"; }}
+                          onError={(e) => {
+                            e.target.src = "/fallback.jpg";
+                          }}
                         />
                         <h4>{product.name}</h4>
                         <p>{product.category}</p>
+                        {/* product info */}
                         <p><strong>₹{product.price}</strong></p>
                         <div className="card-actions">
                           <button className="edit-btn" onClick={() => handleEdit(product.id)}>Edit</button>
-                          <button className="delete-btn" onClick={() => handleDelete(product.id)}>Delete</button>
+                          <button className="delete-btn" onClick={() => handleDelete(product._id)}>Delete</button>
                         </div>
                       </div>
                     )) : (
@@ -311,17 +325,19 @@ const AdminDashboard = () => {
                 <div className="product-grid four-cols">
                   {products.length > 0 ? products.map((product) => (
                     <div className="product-card" key={product.id}>
-                      <img
-                        src={buildAssetUrl(product.imageUrl)}
-                        alt={product.name}
-                        onError={(e) => { e.target.src = "/fallback.jpg"; }}
-                      />
+                       <img
+                          src={product.image}
+                          alt={product.name}
+                          onError={(e) => {
+                            e.target.src = "/fallback.jpg";
+                          }}
+                        />
                       <h4>{product.name}</h4>
                       <p>{product.category}</p>
                       <p><strong>₹{product.price}</strong></p>
                       <div className="card-actions">
                         <button className="edit-btn" onClick={() => handleEdit(product.id)}>Edit</button>
-                        <button className="delete-btn" onClick={() => handleDelete(product.id)}>Delete</button>
+                        <button className="delete-btn" onClick={() => handleDelete(product._id)}>Delete</button>
                       </div>
                     </div>
                   )) : (

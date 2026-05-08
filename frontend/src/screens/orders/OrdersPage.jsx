@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable';
 import { FaChevronDown, FaChevronUp, FaFileInvoice, FaHome, FaClipboardList, FaSyncAlt } from 'react-icons/fa'; // Import FaSyncAlt
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getMyOrders, updateOrderStatus } from './services/orderService';
+import { getMyOrders, updateOrderStatus } from '../../services/orderService';
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -49,6 +49,7 @@ function OrdersPage() {
     setLoading(true);
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
+    const id = localStorage.getItem('id');
 
     if (!token || !user) {
       navigate("/login");
@@ -57,7 +58,7 @@ function OrdersPage() {
     }
 
     try {
-      const res = await getMyOrders();
+      const res = await getMyOrders(id);
       const data = res.data;
 
       if (!Array.isArray(data)) throw new Error("Invalid orders format");
@@ -78,7 +79,9 @@ function OrdersPage() {
 
       try {
         const raw = localStorage.getItem("orders");
+        console.log("raw", raw);
         const parsed = JSON.parse(raw);
+        console.log("parsed", parsed);
 
         if (Array.isArray(parsed)) {
           const processedFallback = parsed.map(order => ({
@@ -125,13 +128,14 @@ function OrdersPage() {
     doc.text(`Order ID: #${order.id}`, 14, 35);
     doc.text(`Date: ${new Date(order.orderDate).toLocaleString()}`, 14, 42);
     doc.text(`Payment: ${order.paymentMode}`, 14, 49);
-
+   
     const tableRows = order.items.map((item) => [
-      item.productName,
-      `₹${item.price.toFixed(2)}`,
+      item.product.productName,
+      `₹${item.product.price.toFixed(2)}`,
       item.quantity,
-      `₹${(item.price * item.quantity).toFixed(2)}`
+      `₹${(item.product.price * item.quantity).toFixed(2)}`
     ]);
+
 
     let startY = 60;
 
@@ -155,6 +159,7 @@ function OrdersPage() {
         }
       });
     }
+    console.log("order ",order);
 
     let finalY = (doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY : startY + 5;
 
@@ -279,11 +284,12 @@ function OrdersPage() {
                   <div className="order-items-list">
                     <h4>Products in this Order:</h4>
                     <ul>
-                      {order.items.map((item, itemIndex) => (
-                        <li key={itemIndex}>
-                          {item.productName} (x{item.quantity}) - ₹{(item.price * item.quantity).toFixed(2)}
-                        </li>
-                      ))}
+                    {order.items.map((item, itemIndex) => (
+                    <li key={itemIndex}>
+                      {item.product.productName} ({item.quantity}) -
+                      ₹{(item.product.price * item.quantity).toFixed(2)}
+                    </li>
+                  ))}
                     </ul>
                   </div>
 

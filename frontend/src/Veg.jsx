@@ -30,7 +30,7 @@ function Veg() {
       startTime = Date.now();
 
       try {
-        const response = await getProductsByCategory('veg');
+        const response = await getProductsByCategory('Veg');
         setProducts(response.data);
         setFilteredProducts(response.data);
         setError(null);
@@ -162,12 +162,13 @@ function Veg() {
             <div className="card-grid">
               {currentItems.map(product => (
                 <div className="card" key={product.id}>
-                  <img
-                    src={buildAssetUrl(product.imageUrl)}
-                    alt={product.name}
-                    className="card-img"
-                    onError={(e) => { e.target.src = '/fallback.jpg'; }}
-                  />
+                     <img height="200px" width="200px" 
+              src={product.image}
+              alt={product.name}
+              onError={(e) => {
+                e.target.src = "/no-image.png";
+              }}
+            />
                   <h4>{product.name}</h4>
                   <p>₹{product.price}</p>
                   <button onClick={() => handleAddToCartClick(product)}>Add to Cart</button> {/* Use the new handler */}
@@ -212,7 +213,7 @@ function Veg() {
 
           <div className="footer-right">
             <h4>Contact Us</h4>
-            <p>Email: <a href="mailto:kommineniravindra99@gmail.com">kommineniravindra99@gmail.com</a></p>
+            <p>Email: <a href="mailto:sivakesava155@gmail.com">sivakesava155@gmail.com</a></p>
             <p>Phone: +91 960-326-2008</p>
           </div>
         </div>

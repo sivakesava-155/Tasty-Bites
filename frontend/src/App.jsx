@@ -1,21 +1,21 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-import Signup from './SignUp';
-import Login from './Login';
+import Signup from './screens/signup/SignUp';
+import Login from './screens/login/Login';
 import UserHome from './UserHome';
-import AdminDashboard from './AdminDashboard';
+import AdminDashboard from './screens/admin/AdminDashboard';
 import PrivateRoute from './PrivateRoute';
 import Veg from './Veg';
 import NonVeg from './NonVeg';
 import Snacks from './Snacks';
 import Drinks from './Drinks';
-import AddProduct from './AddProduct';
-import ViewProducts from './ViewProduct';
-import UpdateProduct from './UpdateProduct';
+import AddProduct from './screens/item/AddProduct';
+import ViewProducts from './screens/item/ViewProduct';
+import UpdateProduct from './screens/item/UpdateProduct';
 import CartPage from './CartPage';
-import Orders from './OrdersPage';
-import AboutUsPage from './AboutUsPage';
+import Orders from './screens/orders/OrdersPage';
+import AboutUsPage from './screens/aboutus/AboutUsPage';
 import Navbar from './Navbar'; // Import Navbar
 
 import { CartProvider } from './CartContext';
@@ -68,6 +68,7 @@ function App() {
             <Route path="/admin/add-product" element={<AddProduct />} />
             <Route path="/admin/view-products" element={<ViewProducts />} />
             <Route path="/admin/update/:id" element={<UpdateProduct />} />
+            {/* <Route path="/admin/update-product/:id" element={<UpdateProduct />} /> */}
           </Route>
 
           {/* Fallback */}

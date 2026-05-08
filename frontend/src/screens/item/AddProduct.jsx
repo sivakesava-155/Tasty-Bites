@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AddProduct.css';
 import { FaArrowLeft, FaEye } from 'react-icons/fa';
-import { createProduct } from './services/productService';
+import { createProduct } from '../../services/productService';
 
 function AddProduct() {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ function AddProduct() {
     name: '',
     category: '',
     price: '',
-    imageUrl: ''
+    imageUrl: null
   });
 
   const handleChange = (e) => {
@@ -21,18 +21,40 @@ function AddProduct() {
     }));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     await createProduct(product);
+  //     alert("Product added successfully!");
+  //     navigate("/admin/view-products");
+  //   }
+  //   catch (error) {
+  //     console.error("Error adding product:", error);
+  //     alert("Failed to add product.");
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      await createProduct(product);
+  
+      const formData = new FormData();
+  
+      formData.append("name", product.name);
+      formData.append("category", product.category);
+      formData.append("price", product.price);
+      formData.append("image", product.image);
+  
+      await createProduct(formData);
+  
       alert("Product added successfully!");
       navigate("/admin/view-products");
+  
     } catch (error) {
       console.error("Error adding product:", error);
       alert("Failed to add product.");
     }
   };
-
   return (
     <div className="add-product-page">
       <div className="add-product-card">
@@ -57,7 +79,19 @@ function AddProduct() {
 
           <div className="form-group">
             <label>Category:</label>
-            <input type="text" name="category" value={product.category} onChange={handleChange} required />
+            <select
+              className="form-select"
+              name="category"
+              value={product.category}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select category</option>
+              <option value="Veg">Veg</option>
+              <option value="NonVeg">NonVeg</option>
+              <option value="Snacks">Snacks</option>
+              <option value="Drinks">Drinks</option>
+            </select>
           </div>
 
           <div className="form-group">
@@ -66,8 +100,19 @@ function AddProduct() {
           </div>
 
           <div className="form-group">
-            <label>Image URL:</label>
-            <input type="text" name="imageUrl" value={product.imageUrl} onChange={handleChange} />
+          <label>Product Image:</label>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setProduct({
+                  ...product,
+                  image: e.target.files[0]
+                })
+              }
+            />
+            {/* <input type="text" name="imageUrl" value={product.imageUrl} onChange={handleChange} />  */}
           </div>
 
           <button type="submit" className="add-btn">Add Product</button>
@@ -78,3 +123,7 @@ function AddProduct() {
 }
 
 export default AddProduct;
+
+
+
+

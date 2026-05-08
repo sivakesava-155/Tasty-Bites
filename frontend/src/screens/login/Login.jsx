@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
-import { signIn } from './services/authService';
+import axios from 'axios';
+import { signIn } from '../../services/authService';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -23,6 +24,7 @@ function Login() {
 
       const payload = response.data?.data || response.data || {};
       const token = response.data?.token || payload?.token;
+      const id =  response.data?.id || payload?.user?.id || id; 
       const role = (response.data?.role || payload?.user?.role || "").toUpperCase();
       const loggedInEmail = response.data?.email || payload?.user?.email || email;
 
@@ -33,6 +35,7 @@ function Login() {
       // Storing authentication and user details in localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
+      localStorage.setItem('id', id);
       localStorage.setItem('username', loggedInEmail); // Storing email under 'username' key for compatibility with other components
       
       // Storing a parsed user object for more structured data access

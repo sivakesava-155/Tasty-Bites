@@ -174,15 +174,25 @@ const CartPage = () => {
 
     try {
       await checkoutOrder({
-        cartItems: cartItems.map((item) => ({
-          productName: item.name,
-          price: item.price,
+        userId: localStorage.getItem("userId"),
+      
+        items: cartItems.map((item) => ({
+          product: {
+            productId: item._id || item.id,
+            productName: item.name,
+            category: item.category,
+            price: item.price,
+          },
           quantity: item.quantity,
         })),
-        totalAmount: estimatedTotalNum,
-        status: "PENDING",
+      
+        paymentMode: visibleSection === "card" ? "CARD" : "UPI",
+      
+        taxAmount: taxCost,
+        shippingAmount: shippingCost,
+        discountAmount: discountAmount,
       });
-
+      
       const orderId = 'TB' + Date.now();
 
       const templateParams = {
@@ -201,7 +211,7 @@ const CartPage = () => {
           total: estimatedTotal,
         }
       };
-
+      console.log("cartItems ",cartItems);
       await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
 
       clearCart();
@@ -337,10 +347,12 @@ const CartPage = () => {
                   <tr key={item.id} id={`cart-item-${item.id}`} className={quantityAnimatingItemId === item.id ? 'quantity-pulsing' : ''}>
                     <td className="item-details-cell">
                       <img
-                        src={buildAssetUrl(item.imageUrl)}
+                        // src={buildAssetUrl(item.imageUrl)}
                         alt={item.name}
                         className="item-image-template"
-                        onError={(e) => { e.target.src = '/fallback.jpg'; }}
+                        onError={(e) => {
+                          e.target.src = "/no-image.png";
+                        }}
                       />
                       <div className="item-info-template">
                         <div className="item-name-template">{item.name}</div>

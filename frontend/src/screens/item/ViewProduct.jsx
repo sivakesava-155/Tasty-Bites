@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ViewProduct.css';
-import { buildAssetUrl } from './services/apiClient';
-import { deleteProduct, getAllProducts } from './services/productService';
+import { buildAssetUrl } from '../../services/apiClient';
+import { deleteProduct, getAllProducts } from '../../services/productService';
 
 function ViewProduct() {
   const [products, setProducts] = useState([]);
@@ -15,6 +15,7 @@ function ViewProduct() {
   const fetchProducts = async () => {
     try {
       const res = await getAllProducts();
+      console.log(res.data);
       setProducts(res.data?.products || res.data || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -46,18 +47,21 @@ function ViewProduct() {
           {products.map(product => (
             <div className="product-card" key={product.id}>
               <img
-                src={buildAssetUrl(product.imageUrl)}
-                alt={product.name}
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
-              />
+              src={product.image}
+              alt={product.name}
+              onError={(e) => {
+                e.target.src = "/no-image.png";
+              }}
+            />
               <div className="product-info">
-                <h3>{product.name}</h3>
+                <h3 className="product-name">{product.name}</h3>
                 <p>Category: <strong>{product.category}</strong></p>
                 <p>₹{product.price}</p>
               </div>
-              <div className="product-actions">
-                <button className="btn-update" onClick={() => handleUpdate(product.id)}>Update</button>
-                <button className="btn-delete" onClick={() => handleDelete(product.id)}>Delete</button>
+
+              <div className="card-actions">
+                <button className="edit-btn" onClick={() => handleUpdate(product._id)}>Update</button>
+                <button className="delete-btn" onClick={() => handleDelete(product._id)}>Delete</button>
               </div>
             </div>
           ))}

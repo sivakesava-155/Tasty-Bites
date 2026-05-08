@@ -36,7 +36,8 @@
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
     "recharts": "^3.1.0",
-    "slick-carousel": "^1.8.1"
+    "slick-carousel": "^1.8.1",
+    "useparams": "^0.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

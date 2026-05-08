@@ -209,7 +209,7 @@ function Snacks() {
 
           <div className="footer-right">
             <h4>Contact Us</h4>
-            <p>Email: <a href="mailto:kommineniravindra99@gmail.com">kommineniravindra99@gmail.com</a></p>
+            <p>Email: <a href="mailto:sivakesava155@gmail.com">sivakesava155@gmail.com</a></p>
             <p>Phone: +91 960-326-2008</p>
           </div>
         </div>
