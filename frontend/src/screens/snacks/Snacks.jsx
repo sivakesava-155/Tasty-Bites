@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import './Veg.css'; // Reusing existing styles
-import { useCart } from './CartContext';
-import { BeatLoader } from 'react-spinners'; // Using BeatLoader
+import '../../Veg.css'; // Reusing styles
+import { useCart } from '../../CartContext';
+import { ClipLoader } from 'react-spinners'; // Using ClipLoader for Snacks!
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for footer links
-import Navbar from './Navbar'; // Import Navbar
-import { buildAssetUrl } from './services/apiClient';
-import { getProductsByCategory } from './services/productService';
+import Navbar from '../navbar/Navbar'; // Don't forget to import Navbar if you want it here
+import { buildAssetUrl } from '../../services/apiClient';
+import { getProductsByCategory } from '../../services/productService';
 
-function Drinks() {
+function Snacks() {
   const navigate = useNavigate(); // Initialize useNavigate
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -21,7 +21,7 @@ function Drinks() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const MIN_LOAD_TIME = 1000; // Adjusted to 1 second for quicker demo/test
+    const MIN_LOAD_TIME = 1000; // Adjusted to 1 second for a quicker demo/test, feel free to change
     let startTime;
 
     const fetchData = async () => {
@@ -29,14 +29,14 @@ function Drinks() {
       startTime = Date.now();
 
       try {
-        const response = await getProductsByCategory('drinks');
+        const response = await getProductsByCategory('snacks');
 
         setProducts(response.data);
         setFilteredProducts(response.data);
         setError(null);
       } catch (err) {
-        console.error("Failed to load drinks items:", err);
-        setError('Failed to load drinks items');
+        console.error("Failed to load snack items:", err);
+        setError('Failed to load snack items');
         setProducts([]);
         setFilteredProducts([]);
       } finally {
@@ -103,10 +103,10 @@ function Drinks() {
   return (
     <>
       {/* Navbar will be rendered by the NavbarWrapper in App.js */}
-      {/* <Navbar /> -- Remove this line if NavbarWrapper is correctly implemented in App.js */}
+      {/* <Navbar />  -- Remove this line if NavbarWrapper is correctly implemented in App.js */}
 
-      <div className="veg-section">
-        <h3 className="section-title">🥤 Drinks</h3>
+      <div className="veg-section"> {/* Reusing veg-section class for layout */}
+        <h3 className="section-title">🍟 Crispy Snacks</h3>
 
         <div className="refresh-button-container">
           <button className="refresh-button" onClick={handleRefresh} disabled={loading}>
@@ -147,25 +147,24 @@ function Drinks() {
 
         {loading ? (
           <div className="spinner-container">
-            <BeatLoader color="#00BFFF" loading={loading} size={15} margin={5} />
-            <p className="status-message">Pouring up some refreshing drinks...</p>
+            <ClipLoader color="#32CD32" loading={loading} size={70} />
+            <p className="status-message">Loading crispy snacks...</p>
           </div>
         ) : error ? (
           <p className="status-message error">{error}</p>
         ) : currentItems.length === 0 ? (
-          <p className="status-message">No drinks available.</p>
+          <p className="status-message">No snacks available.</p>
         ) : (
           <>
             <div className="card-grid">
               {currentItems.map(product => (
                 <div className="card" key={product.id}>
-                  <img height="200px" width="200px" 
-                          src={product.image}
-                          alt={product.name}
-                          onError={(e) => {
-                         e.target.src = "/no-image.png";
-                        }}
-                    />
+                  <img
+                    src={buildAssetUrl(product.imageUrl)}
+                    alt={product.name}
+                    className="card-img"
+                    onError={(e) => { e.target.src = '/fallback.jpg'; }}
+                  />
                   <h4>{product.name}</h4>
                   <p>₹{product.price}</p>
                   <button onClick={() => addToCart(product)}>Add to Cart</button>
@@ -223,4 +222,4 @@ function Drinks() {
   );
 }
 
-export default Drinks;
+export default Snacks;

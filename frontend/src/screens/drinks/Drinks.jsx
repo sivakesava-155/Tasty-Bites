@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import './Veg.css'; // Reusing existing styles
-import { useCart } from './CartContext';
-import { RingLoader } from 'react-spinners'; // Using RingLoader for consistency
+import '../../Veg.css'; // Reusing existing styles
+import { useCart } from '../../CartContext';
+import { BeatLoader } from 'react-spinners'; // Using BeatLoader
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for footer links
-import Navbar from './Navbar'; // Import Navbar
-import { buildAssetUrl } from './services/apiClient';
-import { getProductsByCategory } from './services/productService';
+import Navbar from '../navbar/Navbar'; // Import Navbar
+import { buildAssetUrl } from '../../services/apiClient';
+import { getProductsByCategory } from '../../services/productService';
 
-function NonVeg() {
+function Drinks() {
   const navigate = useNavigate(); // Initialize useNavigate
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -29,14 +29,14 @@ function NonVeg() {
       startTime = Date.now();
 
       try {
-        const response = await getProductsByCategory('nonveg');
+        const response = await getProductsByCategory('drinks');
 
         setProducts(response.data);
         setFilteredProducts(response.data);
         setError(null);
       } catch (err) {
-        console.error("Failed to load non-veg items:", err);
-        setError('Failed to load non-veg items');
+        console.error("Failed to load drinks items:", err);
+        setError('Failed to load drinks items');
         setProducts([]);
         setFilteredProducts([]);
       } finally {
@@ -105,8 +105,8 @@ function NonVeg() {
       {/* Navbar will be rendered by the NavbarWrapper in App.js */}
       {/* <Navbar /> -- Remove this line if NavbarWrapper is correctly implemented in App.js */}
 
-      <div className="veg-section"> {/* Reusing veg-section class for layout */}
-        <h3 className="section-title">🍗 NonVeg Menu</h3>
+      <div className="veg-section">
+        <h3 className="section-title">🥤 Drinks</h3>
 
         <div className="refresh-button-container">
           <button className="refresh-button" onClick={handleRefresh} disabled={loading}>
@@ -147,25 +147,25 @@ function NonVeg() {
 
         {loading ? (
           <div className="spinner-container">
-            <RingLoader color="#d9534f" loading={loading} size={70} />
-            <p className="status-message">Loading delicious non-veg items...</p>
+            <BeatLoader color="#00BFFF" loading={loading} size={15} margin={5} />
+            <p className="status-message">Pouring up some refreshing drinks...</p>
           </div>
         ) : error ? (
           <p className="status-message error">{error}</p>
         ) : currentItems.length === 0 ? (
-          <p className="status-message">No non-veg items available.</p>
+          <p className="status-message">No drinks available.</p>
         ) : (
           <>
             <div className="card-grid">
               {currentItems.map(product => (
                 <div className="card" key={product.id}>
                   <img height="200px" width="200px" 
-                    src={product.image}
-                    alt={product.name}
-                    onError={(e) => {
-                      e.target.src = "/no-image.png";
-                    }}
-                  />
+                          src={product.image}
+                          alt={product.name}
+                          onError={(e) => {
+                         e.target.src = "/no-image.png";
+                        }}
+                    />
                   <h4>{product.name}</h4>
                   <p>₹{product.price}</p>
                   <button onClick={() => addToCart(product)}>Add to Cart</button>
@@ -211,7 +211,7 @@ function NonVeg() {
           <div className="footer-right">
             <h4>Contact Us</h4>
             <p>Email: <a href="mailto:sivakesava155@gmail.com">sivakesava155@gmail.com</a></p>
-            <p>Phone: +91 9121-676-2008</p>
+            <p>Phone: +91 960-326-2008</p>
           </div>
         </div>
 
@@ -223,4 +223,4 @@ function NonVeg() {
   );
 }
 
-export default NonVeg;
+export default Drinks;

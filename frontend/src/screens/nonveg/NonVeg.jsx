@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import './Veg.css'; // Reusing styles
-import { useCart } from './CartContext';
-import { ClipLoader } from 'react-spinners'; // Using ClipLoader for Snacks!
+import '../../Veg.css'; // Reusing existing styles
+import { useCart } from '../../CartContext';
+import { RingLoader } from 'react-spinners'; // Using RingLoader for consistency
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for footer links
-import Navbar from './Navbar'; // Don't forget to import Navbar if you want it here
-import { buildAssetUrl } from './services/apiClient';
-import { getProductsByCategory } from './services/productService';
+import Navbar from '../navbar/Navbar'; // Import Navbar
+import { buildAssetUrl } from '../../services/apiClient';
+import { getProductsByCategory } from '../../services/productService';
 
-function Snacks() {
+function NonVeg() {
   const navigate = useNavigate(); // Initialize useNavigate
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -21,7 +21,7 @@ function Snacks() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const MIN_LOAD_TIME = 1000; // Adjusted to 1 second for a quicker demo/test, feel free to change
+    const MIN_LOAD_TIME = 1000; // Adjusted to 1 second for quicker demo/test
     let startTime;
 
     const fetchData = async () => {
@@ -29,14 +29,14 @@ function Snacks() {
       startTime = Date.now();
 
       try {
-        const response = await getProductsByCategory('snacks');
+        const response = await getProductsByCategory('nonveg');
 
         setProducts(response.data);
         setFilteredProducts(response.data);
         setError(null);
       } catch (err) {
-        console.error("Failed to load snack items:", err);
-        setError('Failed to load snack items');
+        console.error("Failed to load non-veg items:", err);
+        setError('Failed to load non-veg items');
         setProducts([]);
         setFilteredProducts([]);
       } finally {
@@ -103,10 +103,10 @@ function Snacks() {
   return (
     <>
       {/* Navbar will be rendered by the NavbarWrapper in App.js */}
-      {/* <Navbar />  -- Remove this line if NavbarWrapper is correctly implemented in App.js */}
+      {/* <Navbar /> -- Remove this line if NavbarWrapper is correctly implemented in App.js */}
 
       <div className="veg-section"> {/* Reusing veg-section class for layout */}
-        <h3 className="section-title">🍟 Crispy Snacks</h3>
+        <h3 className="section-title">🍗 NonVeg Menu</h3>
 
         <div className="refresh-button-container">
           <button className="refresh-button" onClick={handleRefresh} disabled={loading}>
@@ -147,23 +147,24 @@ function Snacks() {
 
         {loading ? (
           <div className="spinner-container">
-            <ClipLoader color="#32CD32" loading={loading} size={70} />
-            <p className="status-message">Loading crispy snacks...</p>
+            <RingLoader color="#d9534f" loading={loading} size={70} />
+            <p className="status-message">Loading delicious non-veg items...</p>
           </div>
         ) : error ? (
           <p className="status-message error">{error}</p>
         ) : currentItems.length === 0 ? (
-          <p className="status-message">No snacks available.</p>
+          <p className="status-message">No non-veg items available.</p>
         ) : (
           <>
             <div className="card-grid">
               {currentItems.map(product => (
                 <div className="card" key={product.id}>
-                  <img
-                    src={buildAssetUrl(product.imageUrl)}
+                  <img height="200px" width="200px" 
+                    src={product.image}
                     alt={product.name}
-                    className="card-img"
-                    onError={(e) => { e.target.src = '/fallback.jpg'; }}
+                    onError={(e) => {
+                      e.target.src = "/no-image.png";
+                    }}
                   />
                   <h4>{product.name}</h4>
                   <p>₹{product.price}</p>
@@ -210,7 +211,7 @@ function Snacks() {
           <div className="footer-right">
             <h4>Contact Us</h4>
             <p>Email: <a href="mailto:sivakesava155@gmail.com">sivakesava155@gmail.com</a></p>
-            <p>Phone: +91 960-326-2008</p>
+            <p>Phone: +91 9121-676-2008</p>
           </div>
         </div>
 
@@ -222,4 +223,4 @@ function Snacks() {
   );
 }
 
-export default Snacks;
+export default NonVeg;

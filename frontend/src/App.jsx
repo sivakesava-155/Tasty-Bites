@@ -6,17 +6,17 @@ import Login from './screens/login/Login';
 import UserHome from './UserHome';
 import AdminDashboard from './screens/admin/AdminDashboard';
 import PrivateRoute from './PrivateRoute';
-import Veg from './Veg';
-import NonVeg from './NonVeg';
-import Snacks from './Snacks';
-import Drinks from './Drinks';
+import Veg from './screens/veg/Veg';
+import NonVeg from './screens/nonveg/NonVeg';
+import Snacks from './screens/snacks/Snacks';
+import Drinks from './screens/drinks/Drinks';
 import AddProduct from './screens/item/AddProduct';
 import ViewProducts from './screens/item/ViewProduct';
 import UpdateProduct from './screens/item/UpdateProduct';
 import CartPage from './CartPage';
 import Orders from './screens/orders/OrdersPage';
 import AboutUsPage from './screens/aboutus/AboutUsPage';
-import Navbar from './Navbar'; // Import Navbar
+import Navbar from './screens/navbar/Navbar'; // Import Navbar
 
 import { CartProvider } from './CartContext';
 import { ToastContainer } from 'react-toastify';

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import './Veg.css';
-import { useCart } from './CartContext';
+import '../../Veg.css';
+import { useCart } from '../../CartContext';
 import { RingLoader } from 'react-spinners';
-import Navbar from './Navbar';
+import Navbar from '../navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify'; // Import toast
-import { buildAssetUrl } from './services/apiClient';
-import { getProductsByCategory } from './services/productService';
+import { buildAssetUrl } from '../../services/apiClient';
+import { getProductsByCategory } from '../../services/productService';
 
 function Veg() {
   const navigate = useNavigate();
